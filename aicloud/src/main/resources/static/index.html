@@ -18,7 +18,7 @@
             <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
                 <i class="layui-icon layui-icon-spread-left"></i>
             </li>
-            <li class="layui-nav-item layui-hide-xs" lay-on="nav-change-content"
+            <li class="layui-nav-item layui-hide-xs layui-this" lay-on="nav-change-content"
                 lay-data="chat-chatgpt-content"><a href="javascript:;">ChatGPT</a></li>
             <li class="layui-nav-item layui-hide-xs" lay-on="nav-change-content"
                 lay-data="chat-tongyi-content"><a href="javascript:;">通义千问</a></li>
@@ -46,8 +46,10 @@
             <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
                 <i class="layui-icon layui-icon-spread-left"></i>
             </li>
-            <li class="layui-nav-item layui-hide-xs"><a href="javascript:;">推荐</a></li>
-            <li class="layui-nav-item layui-hide-xs"><a href="javascript:;">最新</a></li>
+            <li class="layui-nav-item layui-hide-xs" lay-on="nav-change-content"
+                lay-data="discuss-content"><a href="javascript:;">推荐</a></li>
+            <li class="layui-nav-item layui-hide-xs" lay-on="nav-change-content"
+                lay-data="discuss-content-new"><a href="javascript:;">最新</a></li>
         </ul>
         <ul class="layui-nav layui-layout-right">
             <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
@@ -74,9 +76,9 @@
             <ul class="layui-nav layui-nav-tree" lay-filter="test">
                 <li class="layui-nav-item layui-nav-itemed">
                     <a class="" href="javascript:;">AI 工具箱</a>
-                    <dl class="layui-nav-child" lay-on="chat-nav-show">
-                        <dd><a href="javascript:;">对话</a></dd>
-                        <dd><a href="javascript:;">绘图</a></dd>
+                    <dl class="layui-nav-child">
+                        <dd><a class="layui-this" href="javascript:;" lay-on="chat-nav-show">对话</a></dd>
+                        <dd><a href="javascript:;" lay-on="draw-nav-show">绘图</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item" lay-on="discuss-nav-show"><a href="javascript:;">话题讨论</a></li>
@@ -86,15 +88,10 @@
     </div>
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div>
-            <div style="padding: 15px;">
-                <div id="chat-chatgpt-content" class="layui-card layui-panel">
-                    <div class="layui-card-header layui-font-16">
-                        ChatGPT 提出的问题？
-                    </div>
-                    <div class="layui-card-body">
-                        ChatGPT 回答的答案。
-                    </div>
+        <div style="padding-top: 15px;padding-bottom: 80px;">
+            <div>
+                <div id="chat-chatgpt-content">
+
                 </div>
                 <div id="chat-tongyi-content" class="layui-card layui-panel" style="display: none;">
                     <div class="layui-card-header layui-font-16">
@@ -121,14 +118,9 @@
                     </div>
                 </div>
                 <div id="draw-chatgpt-content" class="layui-card layui-panel" style="display: none;">
-                    <div class="layui-card-header layui-font-16">
-                        绘图-ChatGPT 提出的问题？
-                    </div>
-                    <div class="layui-card-body">
-                        绘图-ChatGPT 回答的答案。
-                    </div>
+
                 </div>
-                <div id="darw-tongyi-content" class="layui-card layui-panel" style="display: none;">
+                <div id="draw-tongyi-content" class="layui-card layui-panel" style="display: none;">
                     <div class="layui-card-header layui-font-16">
                         绘图-tongyi 提出的问题？
                     </div>
@@ -136,13 +128,8 @@
                         绘图-tongyi 回答的答案。
                     </div>
                 </div>
-                <div id="draw-xunfei-content" class="layui-card layui-panel" style="display: none;">
-                    <div class="layui-card-header layui-font-16">
-                        绘图-xunfei 提出的问题？
-                    </div>
-                    <div class="layui-card-body">
-                        绘图-xunfei 回答的答案。
-                    </div>
+                <div id="draw-xunfei-content" style="display: none;">
+
                 </div>
                 <div id="draw-wenxin-content" class="layui-card layui-panel" style="display: none;">
                     <div class="layui-card-header layui-font-16">
@@ -152,69 +139,159 @@
                         绘图-wenxin 回答的答案。
                     </div>
                 </div>
+                <div id="discuss-content" class="layui-card layui-panel" style="display: none;">
+                    <div class="layui-card-header layui-font-16">
+                        推荐话题讨论
+                    </div>
+                    <div class="layui-card-body">
+                        推荐话题讨论详情。
+                    </div>
+                </div>
+                <div id="discuss-content-new" class="layui-card layui-panel" style="display: none;">
+                    <div class="layui-card-header layui-font-16">
+                        最新话题讨论
+                    </div>
+                    <div class="layui-card-body">
+                        最新推荐话题讨论详情。
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="layui-footer" style="height: 80px;line-height: 80px;">
+    <div id="footer-chat" class="layui-footer" style="height: 80px;line-height: 80px;">
         <!-- 底部固定区域 -->
         <div style="width: 80%;">
             <div class="layui-input-group" style="width: 100%;">
-                <input style="margin-top: 20px;margin-left: 160px;" type="text" placeholder="输入问题"
+                <input id="question-input" style="margin-top: 20px;margin-left: 160px;" type="text"
+                       placeholder="输入问题"
                        class="layui-input">
                 <div class="layui-input-suffix">
-                    <button type="button" style="margin-left: 60px;" class="layui-btn layui-btn-radius">发送</button>
+                    <button type="button" style="margin-left: 60px;" lay-on="question-send"
+                            class="layui-btn layui-btn-radius">发送
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+
 <script src="/layui/layui.js"></script>
 <script>
     // JS
-    layui.use(['element', 'layer', 'util', 'jquery'], function () {
+    layui.use(['element', 'layer', 'util'], function () {
         var element = layui.element;
         var layer = layui.layer;
         var util = layui.util;
-        var $ = layui.$;
-        var jQuery = layui.jquery;
+        var jQuery = layui.$;
+        var question_type = "chat"; // 默认当前在使用聊天功能
 
         util.on('lay-on', {
-            'chat-nav-show':function (){  // 显示对话标签页
+            'chat-nav-show': function () { // 显示对话标签页
                 jQuery("#chat-nav").show();
                 jQuery("#draw-nav").hide();
                 jQuery("#discuss-nav").hide();
-                // 标签页重置
-                var showDivId = "chat-chagpt-content";
-                jQuery('#' + showDivId).show();
-                jQuery('#' + showDivId).siblings().hide();
+                // 标签页重置显示第一个
+                var showDivId = "chat-chatgpt-content";
+                jQuery("#" + showDivId).show();
+                jQuery("#" + showDivId).siblings().hide();
                 jQuery("#chat-nav").find("li").removeClass("layui-this");
-                jQuery("#chat-nav").find("li").eq(1).addClass("layui-this")
-
+                jQuery("#chat-nav").find("li").eq(1).addClass("layui-this");
+                // 显示聊天文本框
+                jQuery("#footer-chat").show();
+                question_type = "chat"; // 默认当前在使用聊天功能
             },
-            'draw-nav-show':function (){  // 显示绘图标签页
+            'draw-nav-show': function () { // 显示绘图标签页
                 jQuery("#draw-nav").show();
                 jQuery("#chat-nav").hide();
                 jQuery("#discuss-nav").hide();
-
-                // 标签页重置
-                var showDivId = "draw-chagpt-content";
-                jQuery('#' + showDivId).show();
-                jQuery('#' + showDivId).siblings().hide();
+                // 标签页重置显示第一个
+                var showDivId = "draw-chatgpt-content";
+                jQuery("#" + showDivId).show();
+                jQuery("#" + showDivId).siblings().hide();
                 jQuery("#draw-nav").find("li").removeClass("layui-this");
-                jQuery("#draw-nav").find("li").eq(1).addClass("layui-this")
+                jQuery("#draw-nav").find("li").eq(1).addClass("layui-this");
+                // 显示聊天文本框
+                jQuery("#footer-chat").show();
+                question_type = "draw"; // 默认当前在使用聊天功能
             },
-
-            'discuss-nav-show': function () {  // 显示话题讨论标签页
+            'discuss-nav-show': function () { // 显示话题讨论标签页
+                jQuery("#discuss-nav").show();
                 jQuery("#chat-nav").hide();
                 jQuery("#draw-nav").hide();
-                jQuery("#discuss-nav").show();
+                // 标签页重置显示第一个
+                var showDivId = "discuss-content";
+                jQuery("#" + showDivId).show();
+                jQuery("#" + showDivId).siblings().hide();
+                jQuery("#discuss-nav").find("li").removeClass("layui-this");
+                jQuery("#discuss-nav").find("li").eq(1).addClass("layui-this");
+                // 隐藏聊天文本框
+                jQuery("#footer-chat").hide();
             },
-
-            'nav-change-content': function (e){ // 根据标签页 切换显示不同的内容
+            'nav-change-content': function (e) { // 根据标签页切换显示不同的内容
                 var showDivId = jQuery(e).attr("lay-data");
-                jQuery('#' + showDivId).show(); // 显示自己的内容
-                jQuery('#' + showDivId).siblings().hide();  // 隐藏同级所有
+                jQuery("#" + showDivId).show(); // 显示自己的内容
+                jQuery("#" + showDivId).siblings().hide(); // 隐藏所有同级 div 的内容
+            },
+            'question-send': function () {   // 发送问题
+                var question = jQuery("#question-input").val();
+                if (question == null || question == "") {
+                    layer.msg("请先输入问题！");
+                    return;
+                }
+                if (question_type == "chat") {  // 聊天功能
+                    jQuery.ajax({
+                        url: '/openai/chat',
+                        type: 'POST',
+                        data: {
+                            question: question
+                        },
+                        success: function (res) {
+                            // 显示回答
+                            if (res.code == 200) {
+                                // 正常返回响应信息，显示回答
+                                var createHtml = '<div class="layui-card layui-panel">\n' +
+                                    '                        <div class="layui-card-header layui-font-16">\n' +
+                                    question + '                            \n' +
+                                    '                        </div>\n' +
+                                    '                        <div class="layui-card-body">\n' +
+                                    res.data + '                            \n' +
+                                    '                        </div>\n' +
+                                    '                    </div>';
+                                jQuery("#chat-chatgpt-content").prepend(createHtml);
+                                jQuery("#question-input").val("");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                } else if (question_type == "draw") { // 绘图功能
+                    jQuery.ajax({
+                        url: '/openai/draw',
+                        type: 'POST',
+                        data: {
+                            question: question
+                        },
+                        success: function (res) {
+                            // 显示答案
+                            if (res.code == 200) {
+                                // 正常返回响应信息，显示回答
+                                var createHtml = '<div class="layui-card layui-panel">\n' +
+                                    '                        <div class="layui-card-header layui-font-16">\n' +
+                                    question + '                            \n' +
+                                    '                        </div>\n' +
+                                    '                        <div class="layui-card-body">\n<img src="' +
+                                    res.data.output.url + '                            \n' +
+                                    '">                        </div>\n' +
+                                    '                    </div>';
+                                jQuery("#draw-chatgpt-content").prepend(createHtml);
+                                jQuery("#question-input").val("");
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                }
             }
         });
 
