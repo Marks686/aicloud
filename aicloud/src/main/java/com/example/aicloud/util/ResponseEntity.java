@@ -18,6 +18,7 @@ public class ResponseEntity {
         responseEntity.setData(data);
         return responseEntity;
     }
+
     public static ResponseEntity fail(String msg){
         ResponseEntity responseEntity = new ResponseEntity();
         responseEntity.setCode(500);
