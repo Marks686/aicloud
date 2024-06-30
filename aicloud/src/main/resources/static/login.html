@@ -55,8 +55,8 @@
                 </div>
                 <div class="layui-col-xs5">
                     <div style="margin-left: 10px;">
-                        <img src="https://www.oschina.net/action/user/captcha"
-                             onclick="this.src='https://www.oschina.net/action/user/captcha?t='+ new Date().getTime();">
+                        <img id="captcha_img" src=""
+                             lay-on="ref_captcha_img">
                     </div>
                 </div>
             </div>
@@ -83,10 +83,41 @@
 <!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
 <script src="/layui/layui.js"></script>
 <script>
-    layui.use(function () {
+    layui.use(['util'], function () {
         var form = layui.form;
         var layer = layui.layer;
         var jQuery = layui.$;
+        var util = layui.util;
+
+        // 生成验证码
+        function createCaptcha() {
+            jQuery.ajax({
+                url: '/captcha/create',
+                type: 'GET',
+                success: function (res) {
+                    if (res.code === 200) {
+                        // 显示图片验证码
+                        jQuery('#captcha_img').attr('src', res.data);
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            });
+        }
+
+        // 页面初始化执行事件
+        layer.ready(function () {
+            // 加载图片验证码
+            createCaptcha();
+        });
+
+        util.on('lay-on', {
+            'ref_captcha_img': function () {
+                // 重新加载图片验证码
+                createCaptcha();
+            }
+        });
+
         // 提交事件
         form.on('submit(demo-login)', function (data) {
             var field = data.field; // 获取表单字段值
