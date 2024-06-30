@@ -84,6 +84,9 @@
                 <li class="layui-nav-item" lay-on="discuss-nav-show"><a href="javascript:;">话题讨论</a></li>
                 <li class="layui-nav-item"><a href="javascript:;">关于</a></li>
             </ul>
+            <div style="position:absolute;bottom: 40px;text-align: center;width: 84%">
+                <button type="button" class="layui-btn layui-btn-lg" lay-on="doLogin"> 未登录</button>
+            </div>
         </div>
     </div>
     <div class="layui-body">
@@ -281,7 +284,7 @@
                                     question + '                            \n' +
                                     '                        </div>\n' +
                                     '                        <div class="layui-card-body">\n<img src="' +
-                                    res.data.output.url + '                            \n' +
+                                    res.data + '                            \n' +
                                     '">                        </div>\n' +
                                     '                    </div>';
                                 jQuery("#draw-chatgpt-content").prepend(createHtml);
@@ -292,6 +295,19 @@
                         }
                     });
                 }
+            },
+            'doLogin': function () { // 弹出登录框
+                layer.open({
+                    type: 2,
+                    title: "登录",
+                    area: ['560px', '400px'],
+                    content: '/login.html',
+                    fixed: true, // 不固定
+                    maxmin: false,
+                    shadeClose: false,
+                    btnAlign: 'c',
+                    move: false
+                });
             }
         });
 
