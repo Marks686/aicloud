@@ -9,8 +9,22 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/aicloud?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
 minio:
   endpoint: http://127.0.0.1:9000
   accessKey: 4cr2hiTILRaXRlS1jnsl
   secretKey: a5nRTQOnjYT3oeGQpr0FiSDQckro2D6usuzyKOEs
   bucket: aicloud
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+logging:
+  level:
+    org:
+      spring:
+        aicloud: debug
