@@ -9,6 +9,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,10 +49,7 @@ public class UserController {
      */
 
     @RequestMapping("/add")
-    public ResponseEntity add(User user) {
-        user = new User();
-        user.setUsername("admin");
-        user.setPassword("admin");
+    public ResponseEntity add(@Validated User user) {
         boolean result = userService.save(user);
         return ResponseEntity.succ("result: " + result);
     }
