@@ -4,6 +4,7 @@ import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.crypto.SecureUtil;
 import org.spring.aicloud.util.MinIoUtil;
+import org.spring.aicloud.util.NameUtil;
 import org.spring.aicloud.util.ResponseEntity;
 import io.minio.errors.*;
 import jakarta.annotation.Resource;
@@ -35,7 +36,7 @@ public class CaptchaController {
         String url = "";
         // 定义图形验证码的长和宽
         LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(120, 40);
-        String fileName = "captcha-" + SecureUtil.md5(request.getRemoteAddr());
+        String fileName = NameUtil.getCaptchaName(request);
         try(InputStream inputStream = new ByteArrayInputStream(lineCaptcha.getImageBytes())) {
             url =  minIoUtil.upload(fileName, inputStream, "image/png");
             String code = lineCaptcha.getCode(); // 正确的验证码

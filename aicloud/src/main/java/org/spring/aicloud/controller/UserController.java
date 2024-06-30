@@ -1,9 +1,12 @@
 package org.spring.aicloud.controller;
 
 import cn.hutool.crypto.SecureUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.simpleframework.xml.core.Validate;
 import org.spring.aicloud.entity.User;
+import org.spring.aicloud.entity.dto.UserDTO;
 import org.spring.aicloud.service.IUserService;
+import org.spring.aicloud.util.NameUtil;
 import org.spring.aicloud.util.ResponseEntity;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,22 +25,22 @@ public class UserController {
     private IUserService userService;
     // 登录 login 方法
     @RequestMapping("/login")
-    public ResponseEntity login(String username, String password, String captcha,HttpServletRequest request) {
-        // 1.非空判断
-        if (!StringUtils.hasLength(username) || !StringUtils.hasLength(password)
-        || !StringUtils.hasLength(captcha)) {
-            return ResponseEntity.fail("参数有误");
-        }
+    public ResponseEntity login(@Validated UserDTO userDTO, HttpServletRequest request) {
 
-        // 2.校验图片验证码
-        String redisCaptchaKey = "captcha-" + SecureUtil.md5(request.getRemoteAddr());
+        // 1.校验图片验证码
+        String redisCaptchaKey = NameUtil.getCaptchaName(request);
         String redisCaptcha = (String) redisTemplate.opsForValue().get(redisCaptchaKey);
-        if (!StringUtils.hasLength(redisCaptcha) || !redisCaptcha.equalsIgnoreCase(captcha)) {
+        if (!StringUtils.hasLength(redisCaptcha) ||
+                !redisCaptcha.equalsIgnoreCase(userDTO.getCaptcha())) {
             return ResponseEntity.fail("输入图片验证码错误");
         }
 
         // 3.校验用户名密码
-        if ("admin".equals(username) && "admin".equals(password)) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", userDTO.getUsername());
+        User user = userService.getOne(queryWrapper);
+        if (user != null && user.getPassword().equals(userDTO.getPassword())) {
+            // 4.登录成功
             return ResponseEntity.succ("登录成功");
         }
         return ResponseEntity.fail("用户名或密码错误");
