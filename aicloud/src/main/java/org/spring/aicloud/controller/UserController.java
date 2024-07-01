@@ -23,6 +23,13 @@ public class UserController {
     private RedisTemplate redisTemplate;
     @Resource
     private IUserService userService;
+
+    /**
+     * 登录方法
+     * @param userDTO
+     * @param request
+     * @return
+     */
     // 登录 login 方法
     @RequestMapping("/login")
     public ResponseEntity login(@Validated UserDTO userDTO, HttpServletRequest request) {
@@ -51,10 +58,13 @@ public class UserController {
      * 添加用户
      */
 
-    @RequestMapping("/add")
+    @RequestMapping("/register")
     public ResponseEntity add(@Validated User user) {
         boolean result = userService.save(user);
-        return ResponseEntity.succ("result: " + result);
+        if (result) {
+            return ResponseEntity.succ(result);
+        }
+        return ResponseEntity.fail("未知错误");
     }
 
 
