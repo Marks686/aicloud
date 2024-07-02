@@ -180,6 +180,7 @@
 
 
 <script src="/layui/layui.js"></script>
+<script src="/js/ajaxutil.js"></script>
 <script>
     // JS
     layui.use(['element', 'layer', 'util'], function () {
@@ -243,57 +244,45 @@
                     return;
                 }
                 if (question_type == "chat") {  // 聊天功能
-                    jQuery.ajax({
-                        url: '/openai/chat',
-                        type: 'POST',
-                        data: {
-                            question: question
-                        },
-                        success: function (res) {
-                            // 显示回答
-                            if (res.code == 200) {
-                                // 正常返回响应信息，显示回答
-                                var createHtml = '<div class="layui-card layui-panel">\n' +
-                                    '                        <div class="layui-card-header layui-font-16">\n' +
-                                    question + '                            \n' +
-                                    '                        </div>\n' +
-                                    '                        <div class="layui-card-body">\n' +
-                                    res.data + '                            \n' +
-                                    '                        </div>\n' +
-                                    '                    </div>';
-                                jQuery("#chat-chatgpt-content").prepend(createHtml);
-                                jQuery("#question-input").val("");
-                            } else {
-                                layer.msg(res.msg);
-                            }
+                    function callback(res) {
+                        // 显示回答
+                        if (res.code == 200) {
+                            // 正常返回响应信息，显示回答
+                            var createHtml = '<div class="layui-card layui-panel">\n' +
+                                '                        <div class="layui-card-header layui-font-16">\n' +
+                                question + '                            \n' +
+                                '                        </div>\n' +
+                                '                        <div class="layui-card-body">\n' +
+                                res.data + '                            \n' +
+                                '                        </div>\n' +
+                                '                    </div>';
+                            jQuery("#chat-chatgpt-content").prepend(createHtml);
+                            jQuery("#question-input").val("");
+                        } else {
+                            layer.msg(res.msg);
                         }
-                    });
+                    }
+                    authAjax(jQuery, '/openai/chat', {question: question}, callback);
                 } else if (question_type == "draw") { // 绘图功能
-                    jQuery.ajax({
-                        url: '/openai/draw',
-                        type: 'POST',
-                        data: {
-                            question: question
-                        },
-                        success: function (res) {
-                            // 显示答案
-                            if (res.code == 200) {
-                                // 正常返回响应信息，显示回答
-                                var createHtml = '<div class="layui-card layui-panel">\n' +
-                                    '                        <div class="layui-card-header layui-font-16">\n' +
-                                    question + '                            \n' +
-                                    '                        </div>\n' +
-                                    '                        <div class="layui-card-body">\n<img src="' +
-                                    res.data + '                            \n' +
-                                    '">                        </div>\n' +
-                                    '                    </div>';
-                                jQuery("#draw-chatgpt-content").prepend(createHtml);
-                                jQuery("#question-input").val("");
-                            } else {
-                                layer.msg(res.msg);
-                            }
+                    function callback(){
+                        // 显示答案
+                        if (res.code == 200) {
+                            // 正常返回响应信息，显示回答
+                            var createHtml = '<div class="layui-card layui-panel">\n' +
+                                '                        <div class="layui-card-header layui-font-16">\n' +
+                                question + '                            \n' +
+                                '                        </div>\n' +
+                                '                        <div class="layui-card-body">\n<img src="' +
+                                res.data + '                            \n' +
+                                '">                        </div>\n' +
+                                '                    </div>';
+                            jQuery("#draw-chatgpt-content").prepend(createHtml);
+                            jQuery("#question-input").val("");
+                        } else {
+                            layer.msg(res.msg);
                         }
-                    });
+                    }
+                    authAjax(jQuery, '/openai/draw', {question: question}, callback);
                 }
             },
             'doLogin': function () { // 弹出登录框

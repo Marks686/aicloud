@@ -131,7 +131,11 @@
                 data: field,
                 success: function (res) {
                     if (res.code === 200) {
-                        // 登录成功
+                        // 登录成功，将 JWT 生成 Token 存储到 LocalStorage
+                        layui.data('aicloud_jwt',{
+                            key: 'authorization',
+                            value: res.data
+                        });
                         layer.msg("登录成功！");
                     } else {
                         layer.msg("登录失败：" + res.msg);

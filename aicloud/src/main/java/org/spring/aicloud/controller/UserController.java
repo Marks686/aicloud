@@ -1,6 +1,7 @@
 package org.spring.aicloud.controller;
 
 import cn.hutool.crypto.SecureUtil;
+import cn.hutool.jwt.JWTUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.simpleframework.xml.core.Validate;
 import org.spring.aicloud.entity.User;
@@ -10,11 +11,14 @@ import org.spring.aicloud.util.NameUtil;
 import org.spring.aicloud.util.ResponseEntity;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/user")
@@ -23,6 +27,9 @@ public class UserController {
     private RedisTemplate redisTemplate;
     @Resource
     private IUserService userService;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     /**
      * 登录方法
@@ -47,8 +54,13 @@ public class UserController {
         queryWrapper.eq("username", userDTO.getUsername());
         User user = userService.getOne(queryWrapper);
         if (user != null && user.getPassword().equals(userDTO.getPassword())) {
+            // 生成 JWT
+            HashMap<String, Object> payLoad = new HashMap<>();
+            payLoad.put("uid", user.getUid());
+            payLoad.put("username", user.getUsername());
+
             // 4.登录成功
-            return ResponseEntity.succ("登录成功");
+            return ResponseEntity.succ(JWTUtil.createToken(payLoad, jwtSecret.getBytes()));
         }
         return ResponseEntity.fail("用户名或密码错误");
     }
