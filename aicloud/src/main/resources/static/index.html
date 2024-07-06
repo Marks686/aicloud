@@ -52,16 +52,17 @@
                 lay-data="discuss-content-new"><a href="javascript:;">最新</a></li>
         </ul>
         <ul class="layui-nav layui-layout-right">
-            <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
-                <a href="javascript:;">
-                    <img src="//unpkg.com/outeres@0.0.10/img/layui/icon-v2.png" class="layui-nav-img">
-                    tester
-                </a>
-                <dl class="layui-nav-child">
-                    <dd><a href="javascript:;">Your Profile</a></dd>
-                    <dd><a href="javascript:;">Settings</a></dd>
-                    <dd><a href="javascript:;">Sign out</a></dd>
-                </dl>
+            <li class="layui-nav-item layui-show-sm-inline-block">
+                <div id="user-info">
+                    <a href="javascript:;">
+                        <img src="//unpkg.com/outeres@0.0.10/img/layui/icon-v2.png" class="layui-nav-img">
+                        <span id="username_span"></span>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;">设置</a></dd>
+                        <dd lay-on="logout"><a href="javascript:;">退出</a></dd>
+                    </dl>
+                </div>
             </li>
             <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
                 <a href="javascript:;">
@@ -84,7 +85,7 @@
                 <li class="layui-nav-item" lay-on="discuss-nav-show"><a href="javascript:;">话题讨论</a></li>
                 <li class="layui-nav-item"><a href="javascript:;">关于</a></li>
             </ul>
-            <div style="position:absolute;bottom: 40px;text-align: center;width: 84%">
+            <div id="unlogin_btn_div" style="position:absolute;bottom: 40px;text-align: center;width: 84%">
                 <button type="button" class="layui-btn layui-btn-lg" lay-on="doLogin"> 未登录</button>
             </div>
         </div>
@@ -169,7 +170,7 @@
                        placeholder="输入问题"
                        class="layui-input">
                 <div class="layui-input-suffix">
-                    <button type="button" style="margin-left: 60px;" lay-on="question-send"
+                    <button id="question-send" type="button" style="margin-left: 60px;" lay-on="question-send"
                             class="layui-btn layui-btn-radius">发送
                     </button>
                 </div>
@@ -181,6 +182,7 @@
 
 <script src="/layui/layui.js"></script>
 <script src="/js/ajaxutil.js"></script>
+<script src="/js/appvariable.js"></script>
 <script>
     // JS
     layui.use(['element', 'layer', 'util'], function () {
@@ -189,6 +191,88 @@
         var util = layui.util;
         var jQuery = layui.$;
         var question_type = "chat"; // 默认当前在使用聊天功能
+        var is_first_load_draw = true; // 是否首次加载绘图历史列表
+
+        // 登录状态判断
+        function isLogin() {
+            if (layui.data(login_user_info_key).authorization) {
+                // 登录状态
+                jQuery("#unlogin_btn_div").hide();
+                jQuery("#username_span").html(layui.data(login_user_info_key).username);
+                jQuery("#question-input").removeAttr("disabled");
+                jQuery("#question-send").removeAttr("disabled");
+            } else { // 未登录状态
+                jQuery("#unlogin_btn_div").show();
+                jQuery("#user-info").hide();
+                jQuery("#question-input").attr("disabled", "disabled");
+                jQuery("#question-send").attr("disabled", "disabled");
+            }
+        }
+        // 封装问答 HTML 代码
+        function createChatHtml(question, answer) {
+            return '<div class="layui-card layui-panel">\n' +
+                '                        <div class="layui-card-header layui-font-16">\n' +
+                question + '                            \n' +
+                '                        </div>\n' +
+                '                        <div class="layui-card-body">\n' +
+                answer + '                            \n' +
+                '                        </div>\n' +
+                '                    </div>';
+        }
+        // 封装绘图 HTML 代码
+        function createDrawHtml(question, answer) {
+            return '<div class="layui-card layui-panel">\n' +
+                '                        <div class="layui-card-header layui-font-16">\n' +
+                question + '                            \n' +
+                '                        </div>\n' +
+                '                        <div class="layui-card-body">\n<img src="' +
+                answer + '">                            \n' +
+                '                        </div>\n' +
+                '                    </div>';
+        }
+        // 显示OpenAI历史对话列表
+        function showOpenAIChatHistory() {
+            // 回调方法
+            function doShowList(res) {
+                if (res.code === 200) {
+                    var html = "";
+                    for (var i = 0; i < res.data.length; i++) {
+                        var answer = res.data[i];
+                        html += createChatHtml(answer.title, answer.content);
+                    }
+                    jQuery("#chat-chatgpt-content").html(html);
+                }
+            }
+
+            authAjax(jQuery, "/openai/getchatlist", {}, doShowList);
+        }
+
+        // 显示OpenAI历史绘图列表
+        function showOpenAIDrawHistory() {
+            if (is_first_load_draw) {
+                // 回调方法
+                function doShowList(res) {
+                    if (res.code === 200) {
+                        var html = "";
+                        for (var i = 0; i < res.data.length; i++) {
+                            var answer = res.data[i];
+                            html += createDrawHtml(answer.title, answer.content);
+                        }
+                        jQuery("#draw-chatgpt-content").html(html);
+                    }
+                }
+                authAjax(jQuery, "/openai/getdrawlist", {}, doShowList);
+                is_first_load_draw = false;
+            }
+        }
+
+        // 页面加载完成之后执行的初始化事件
+        layer.ready(function () {
+            // 登录状态判断
+            isLogin();
+            // 显示OpenAI历史对话信息
+            showOpenAIChatHistory();
+        });
 
         util.on('lay-on', {
             'chat-nav-show': function () { // 显示对话标签页
@@ -218,6 +302,8 @@
                 // 显示聊天文本框
                 jQuery("#footer-chat").show();
                 question_type = "draw"; // 默认当前在使用聊天功能
+                // 显示历史绘图信息
+                showOpenAIDrawHistory();
             },
             'discuss-nav-show': function () { // 显示话题讨论标签页
                 jQuery("#discuss-nav").show();
@@ -248,40 +334,28 @@
                         // 显示回答
                         if (res.code == 200) {
                             // 正常返回响应信息，显示回答
-                            var createHtml = '<div class="layui-card layui-panel">\n' +
-                                '                        <div class="layui-card-header layui-font-16">\n' +
-                                question + '                            \n' +
-                                '                        </div>\n' +
-                                '                        <div class="layui-card-body">\n' +
-                                res.data + '                            \n' +
-                                '                        </div>\n' +
-                                '                    </div>';
-                            jQuery("#chat-chatgpt-content").prepend(createHtml);
+                            jQuery("#chat-chatgpt-content").prepend(
+                                createChatHtml(question, res.data));
                             jQuery("#question-input").val("");
                         } else {
-                            layer.msg(res.msg);
+                            layer.msg("出错了：" + res.msg);
                         }
                     }
+
                     authAjax(jQuery, '/openai/chat', {question: question}, callback);
                 } else if (question_type == "draw") { // 绘图功能
-                    function callback(){
+                    function callback() {
                         // 显示答案
                         if (res.code == 200) {
                             // 正常返回响应信息，显示回答
-                            var createHtml = '<div class="layui-card layui-panel">\n' +
-                                '                        <div class="layui-card-header layui-font-16">\n' +
-                                question + '                            \n' +
-                                '                        </div>\n' +
-                                '                        <div class="layui-card-body">\n<img src="' +
-                                res.data + '                            \n' +
-                                '">                        </div>\n' +
-                                '                    </div>';
-                            jQuery("#draw-chatgpt-content").prepend(createHtml);
+                            jQuery("#draw-chatgpt-content").prepend(
+                                createDrawHtml(question, res.data));
                             jQuery("#question-input").val("");
                         } else {
-                            layer.msg(res.msg);
+                            layer.msg("出错了：" + res.msg);
                         }
                     }
+
                     authAjax(jQuery, '/openai/draw', {question: question}, callback);
                 }
             },
@@ -296,6 +370,19 @@
                     shadeClose: false,
                     btnAlign: 'c',
                     move: false
+                });
+            },
+            'logout': function () { // 退出事件
+                layer.confirm('确认退出？', {
+                    btn: ['确定', '关闭'], //按钮
+                    title: "退出",
+                    move: false
+                }, function (index) {
+                    // 执行退出操作
+                    layui.data(login_user_info_key, null);
+                    isLogin();
+                    layer.close(index);
+                }, function () {
                 });
             }
         });

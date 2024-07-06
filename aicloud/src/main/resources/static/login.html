@@ -82,6 +82,7 @@
 
 <!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
 <script src="/layui/layui.js"></script>
+<script src="/js/appvariable.js"></script>
 <script>
     layui.use(['util'], function () {
         var form = layui.form;
@@ -132,11 +133,16 @@
                 success: function (res) {
                     if (res.code === 200) {
                         // 登录成功，将 JWT 生成 Token 存储到 LocalStorage
-                        layui.data('aicloud_jwt',{
-                            key: 'authorization',
-                            value: res.data
+                        layui.data(login_user_info_key,{
+                            key: jwt_token_key,
+                            value: res.data.jwt
                         });
-                        layer.msg("登录成功！");
+                        layui.data(login_user_info_key,{
+                            key: 'username',
+                            value: res.data.username
+                        });
+                        // 刷新父页面
+                        window.parent.location.href = window.parent.location.href;
                     } else {
                         layer.msg("登录失败：" + res.msg);
                     }

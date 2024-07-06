@@ -4,7 +4,7 @@ function authAjax(jQuery, url, data, callback) {
         url: url,
         type: 'POST',
         headers: {
-            'Authorization': layui.data('aicloud_jwt').authorization
+            'Authorization': layui.data('login_user_info_key').authorization
         },
         data: data,
         success: callback

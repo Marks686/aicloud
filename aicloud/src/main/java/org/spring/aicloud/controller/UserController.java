@@ -62,6 +62,9 @@ public class UserController {
             HashMap<String, Object> payLoad = new HashMap<>();
             payLoad.put("uid", user.getUid());
             payLoad.put("username", user.getUsername());
+            HashMap<String,String> result = new HashMap<>();
+            result.put("jwt", JWTUtil.createToken(payLoad, jwtSecret.getBytes()));
+            result.put("username", user.getUsername());
 
             // 4.登录成功
             return ResponseEntity.succ(JWTUtil.createToken(payLoad, jwtSecret.getBytes()));
