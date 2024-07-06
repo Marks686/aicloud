@@ -65,7 +65,6 @@ public class UserController {
         return ResponseEntity.fail("用户名或密码错误");
     }
 
-
     /**
      * 添加用户
      */
@@ -79,5 +78,10 @@ public class UserController {
         return ResponseEntity.fail("未知错误");
     }
 
+
+    @RequestMapping("/test")
+    public String test() {
+        return "OK";
+    }
 
 }
