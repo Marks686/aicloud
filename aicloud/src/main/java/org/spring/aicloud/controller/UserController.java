@@ -13,6 +13,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,8 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+    @Resource
+    private PasswordEncoder passwordEncoder;
     @Resource
     private RedisTemplate redisTemplate;
     @Resource
@@ -53,7 +56,8 @@ public class UserController {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", userDTO.getUsername());
         User user = userService.getOne(queryWrapper);
-        if (user != null && user.getPassword().equals(userDTO.getPassword())) {
+        if (user != null && passwordEncoder.matches(userDTO.getPassword(),
+                user.getPassword())) {
             // 生成 JWT
             HashMap<String, Object> payLoad = new HashMap<>();
             payLoad.put("uid", user.getUid());
@@ -70,7 +74,10 @@ public class UserController {
      */
 
     @RequestMapping("/register")
-    public ResponseEntity add(@Validated User user) {
+    public ResponseEntity register(@Validated User user) {
+        // 密码进行加盐
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 添加方法
         boolean result = userService.save(user);
         if (result) {
             return ResponseEntity.succ(result);

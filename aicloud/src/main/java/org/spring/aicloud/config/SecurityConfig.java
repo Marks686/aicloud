@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // 禁用 CSRF 验证
                 .formLogin(AbstractHttpConfigurer::disable) // 禁用默认登录页
                 .logout(AbstractHttpConfigurer::disable) // 禁用默认注销
+                .headers(AbstractHttpConfigurer::disable) // 禁用默认头信息
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 禁用会话管理
                 .authorizeHttpRequests(auth -> auth
@@ -47,6 +48,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/css/**",
                                 "/login.html",
+                                "/index.html",
                                 "/register.html",
                                 "/user/login",
                                 "/user/register",
