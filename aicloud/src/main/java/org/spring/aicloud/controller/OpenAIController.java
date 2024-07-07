@@ -101,5 +101,20 @@ public class OpenAIController {
         return ResponseEntity.succ(answerService.list(queryWrapper));
     }
 
+    /**
+     * 获取openai绘画记录
+     * @return
+     */
+    @RequestMapping("/getdrawlist")
+    public ResponseEntity getDrawList() {
+        Long uid = SecurityUtil.getCurrentUser().getUid();
+        QueryWrapper<Answer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("uid",uid);
+        queryWrapper.eq("type",2);
+        queryWrapper.eq("model",1);
+        queryWrapper.orderByDesc("aid");
+
+        return ResponseEntity.succ(answerService.list(queryWrapper));
+    }
 
 }
