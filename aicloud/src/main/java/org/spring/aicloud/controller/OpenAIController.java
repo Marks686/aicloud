@@ -1,7 +1,10 @@
 package org.spring.aicloud.controller;
 
+import org.spring.aicloud.entity.Answer;
+import org.spring.aicloud.service.IAnswerService;
 import org.spring.aicloud.util.ResponseEntity;
 import jakarta.annotation.Resource;
+import org.spring.aicloud.util.SecurityUtil;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -17,6 +20,10 @@ public class OpenAIController {
     private OpenAiChatModel chatModel;
     @Resource
     private OpenAiImageModel imageModel;
+
+    @Resource
+    private IAnswerService answerService;
+
     /**
      * 调用OpenAI 聊天接口
      * @param question
@@ -30,7 +37,19 @@ public class OpenAIController {
         }
         // 调用OpenAI 接口
         String result = chatModel.call(question);
-        return ResponseEntity.succ(result);
+
+        // 将结果保存到数据库
+        Answer answer = new Answer();
+        answer.setTitle(question);
+        answer.setContent(result);
+        answer.setModel(1);
+        answer.setType(1);
+        answer.setUid(SecurityUtil.getCurrentUser().getUid());
+        boolean addResult = answerService.save(answer);
+        if (addResult){
+            return ResponseEntity.succ(result);
+        }
+        return ResponseEntity.fail("数据保存失败，请重试");
     }
 
     @RequestMapping("/draw")
