@@ -1,5 +1,6 @@
 package org.spring.aicloud.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.spring.aicloud.entity.Answer;
 import org.spring.aicloud.service.IAnswerService;
 import org.spring.aicloud.util.ResponseEntity;
@@ -52,6 +53,12 @@ public class OpenAIController {
         return ResponseEntity.fail("数据保存失败，请重试");
     }
 
+
+    /**
+     * 调用OpenAI 绘画接口
+     * @param question
+     * @return
+     */
     @RequestMapping("/draw")
     public ResponseEntity draw(String question) {
         if (!StringUtils.hasLength(question)){
@@ -60,6 +67,39 @@ public class OpenAIController {
         }
         // 调用OpenAI 接口
         ImageResponse result = imageModel.call(new ImagePrompt(question));
-        return ResponseEntity.succ(result.getResults().get(0));
+        String imgUrl = result.getResult().getOutput().getUrl();
+
+        // 将结果保存到数据库
+        Answer answer = new Answer();
+        answer.setTitle(question);
+        answer.setContent(imgUrl);
+        answer.setModel(1);
+        answer.setType(2);
+        answer.setUid(SecurityUtil.getCurrentUser().getUid());
+        boolean addResult = answerService.save(answer);
+        if (addResult){
+            return ResponseEntity.succ(imgUrl);
+        }
+        return ResponseEntity.fail("数据保存失败，请重试");
     }
+
+
+    /**
+     * 获取openai聊天记录
+     * @return
+     */
+
+    @RequestMapping("/getchatlist")
+    public ResponseEntity getChatList() {
+        Long uid = SecurityUtil.getCurrentUser().getUid();
+        QueryWrapper<Answer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("uid",uid);
+        queryWrapper.eq("type",1);
+        queryWrapper.eq("model",1);
+        queryWrapper.orderByDesc("aid");
+
+        return ResponseEntity.succ(answerService.list(queryWrapper));
+    }
+
+
 }
