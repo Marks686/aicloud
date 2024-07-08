@@ -1,6 +1,7 @@
 package org.spring.aicloud.controller;
 
 import cn.hutool.http.HttpRequest;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,5 +82,19 @@ public class XunfeiController {
             return ResponseEntity.succ(content);
         }
         return ResponseEntity.fail("操作失败，请重试！");
+    }
+
+
+    /**
+     * 调用讯飞模型历史对话信息
+     */
+    @RequestMapping("/getchatlist")
+    public ResponseEntity getChatList(){
+        QueryWrapper<Answer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("uid",SecurityUtil.getCurrentUser().getUid());
+        queryWrapper.eq("type",AiTypeEnum.CHAT.getValue());
+        queryWrapper.eq("model",AiModelEnum.XUNFEI.getValue());
+        queryWrapper.orderByDesc("aid");
+        return ResponseEntity.succ(answerService.list(queryWrapper));
     }
 }

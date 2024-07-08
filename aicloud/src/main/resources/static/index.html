@@ -253,6 +253,16 @@
             authAjax(jQuery, "/tongyi/getchatlist", {}, doShowList);
         }
 
+        // 显示讯飞历史对话信息
+        function showXunfeiChatHistory() {
+            // 回调方法
+            function doShowList(res) {
+                baseChatShowList("chat-xunfei-content", res);
+            }
+
+            authAjax(jQuery, "/xunfei/getchatlist", {}, doShowList);
+        }
+
         // 绘图功能历史信息基础方法封装
         function baseDrawShowList(divId, res) {
             if (res.code === 200) {
@@ -366,8 +376,11 @@
             isLogin();
             // 显示 OpenAI 历史对话信息
             showOpenAIChatHistory();
-            // 显示同意大模型历史对话信息
+            // 显示通义大模型历史对话信息
             showTongyiChatHistory();
+            // 显示讯飞大模型历史对话信息
+            showXunfeiChatHistory();
+
         });
 
         util.on('lay-on', {
