@@ -9,6 +9,10 @@ spring:
       max-attempts: 3
       backoff:
         multiplier: 2
+  cloud:
+    ai:
+      tongyi:
+        api-key: sk-44df11b7dca04c04a067cb55cb63f9e6
   data:
     redis:
       host: 127.0.0.1

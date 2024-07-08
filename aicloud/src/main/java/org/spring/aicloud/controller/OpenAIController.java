@@ -8,8 +8,10 @@ import jakarta.annotation.Resource;
 import org.spring.aicloud.util.SecurityUtil;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.openai.OpenAiImageModel;
+import org.springframework.ai.openai.OpenAiChatClient;
+
+import org.springframework.ai.openai.OpenAiImageClient;
+
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/openai")
 public class OpenAIController {
     @Resource
-    private OpenAiChatModel chatModel;
+    private OpenAiChatClient chatModel;
     @Resource
-    private OpenAiImageModel imageModel;
+    private OpenAiImageClient imageModel;
 
     @Resource
     private IAnswerService answerService;

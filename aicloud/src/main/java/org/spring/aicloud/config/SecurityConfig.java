@@ -52,7 +52,11 @@ public class SecurityConfig {
                                 "/register.html",
                                 "/user/login",
                                 "/user/register",
-                                "/captcha/create"
+                                "/captcha/create",
+                                "/openai/chat",
+                                "/openai/draw",
+                                "/tongyi/chat",
+                                "/tongyi/draw"
                         ).permitAll()
                         .anyRequest().authenticated() // 其他请求需要认证
                 )

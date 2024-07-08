@@ -67,7 +67,7 @@ public class UserController {
             result.put("username", user.getUsername());
 
             // 4.登录成功
-            return ResponseEntity.succ(JWTUtil.createToken(payLoad, jwtSecret.getBytes()));
+            return ResponseEntity.succ(result);
         }
         return ResponseEntity.fail("用户名或密码错误");
     }
