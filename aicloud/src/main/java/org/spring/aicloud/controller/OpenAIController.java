@@ -2,6 +2,8 @@ package org.spring.aicloud.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.spring.aicloud.entity.Answer;
+import org.spring.aicloud.entity.enums.AiModelEnum;
+import org.spring.aicloud.entity.enums.AiTypeEnum;
 import org.spring.aicloud.service.IAnswerService;
 import org.spring.aicloud.util.ResponseEntity;
 import jakarta.annotation.Resource;
@@ -45,8 +47,8 @@ public class OpenAIController {
         Answer answer = new Answer();
         answer.setTitle(question);
         answer.setContent(result);
-        answer.setModel(1);
-        answer.setType(1);
+        answer.setModel(AiModelEnum.OPENAI.getValue());
+        answer.setType(AiTypeEnum.CHAT.getValue());
         answer.setUid(SecurityUtil.getCurrentUser().getUid());
         boolean addResult = answerService.save(answer);
         if (addResult){
@@ -75,8 +77,8 @@ public class OpenAIController {
         Answer answer = new Answer();
         answer.setTitle(question);
         answer.setContent(imgUrl);
-        answer.setModel(1);
-        answer.setType(2);
+        answer.setModel(AiModelEnum.OPENAI.getValue());
+        answer.setType(AiTypeEnum.DRAW.getValue());
         answer.setUid(SecurityUtil.getCurrentUser().getUid());
         boolean addResult = answerService.save(answer);
         if (addResult){
@@ -96,8 +98,8 @@ public class OpenAIController {
         Long uid = SecurityUtil.getCurrentUser().getUid();
         QueryWrapper<Answer> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("uid",uid);
-        queryWrapper.eq("type",1);
-        queryWrapper.eq("model",1);
+        queryWrapper.eq("type",AiTypeEnum.CHAT.getValue());
+        queryWrapper.eq("model",AiModelEnum.OPENAI.getValue());
         queryWrapper.orderByDesc("aid");
 
         return ResponseEntity.succ(answerService.list(queryWrapper));
@@ -112,8 +114,8 @@ public class OpenAIController {
         Long uid = SecurityUtil.getCurrentUser().getUid();
         QueryWrapper<Answer> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("uid",uid);
-        queryWrapper.eq("type",2);
-        queryWrapper.eq("model",1);
+        queryWrapper.eq("type",AiTypeEnum.DRAW.getValue());
+        queryWrapper.eq("model",AiModelEnum.OPENAI.getValue());
         queryWrapper.orderByDesc("aid");
 
         return ResponseEntity.succ(answerService.list(queryWrapper));
