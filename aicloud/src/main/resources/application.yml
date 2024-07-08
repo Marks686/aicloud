@@ -38,3 +38,10 @@ logging:
         aicloud: debug
 jwt:
   secret: aicloud_springcloud_secret
+
+xunfei:
+  chat:
+    url: https://spark-api-open.xf-yun.com/v1/chat/completions
+    appid: a75d6727
+    api-key: a85b97313192e0573626c279a39c9c21
+    api-secret: ZDE5YzcyZDYyNGE5NzE4OTU3ODJjNGI2

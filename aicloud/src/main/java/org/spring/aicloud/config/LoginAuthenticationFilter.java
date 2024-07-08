@@ -38,7 +38,7 @@ public class LoginAuthenticationFilter extends OncePerRequestFilter {
         // 2.判断令牌是否为空
         if (StringUtils.hasLength(token)){
             // 3.如果不为空， 验证JWT令牌的正确性
-            if (JWTUtil.verify(token ,"jwtSecret".getBytes())){
+            if (JWTUtil.verify(token ,jwtSecret.getBytes())){
                 // 4.获取用户信息存储到 Security
                 JWT jwt = JWTUtil.parseToken(token);
                 if (jwt != null && jwt.getPayload("uid") != null){

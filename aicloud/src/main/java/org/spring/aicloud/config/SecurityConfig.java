@@ -55,8 +55,8 @@ public class SecurityConfig {
                                 "/captcha/create",
                                 "/openai/chat",
                                 "/openai/draw",
-                                "/tongyi/chat",
-                                "/tongyi/draw"
+                                "/xunfei/chat",
+                                "/xunfei/draw"
                         ).permitAll()
                         .anyRequest().authenticated() // 其他请求需要认证
                 )
