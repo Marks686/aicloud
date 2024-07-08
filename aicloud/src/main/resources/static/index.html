@@ -27,7 +27,7 @@
             <li class="layui-nav-item layui-hide-xs" lay-on="nav-change-content"
                 lay-data="chat-wenxin-content"><a href="javascript:;">文心一言</a></li>
         </ul>
-        <ul id="draw-nav" class="layui-nav layui-layout-left">
+        <ul id="draw-nav" class="layui-nav layui-layout-left" style="display: none;">
             <!-- 移动端显示 -->
             <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
                 <i class="layui-icon layui-icon-spread-left"></i>
@@ -97,21 +97,11 @@
                 <div id="chat-chatgpt-content">
 
                 </div>
-                <div id="chat-tongyi-content" class="layui-card layui-panel" style="display: none;">
-                    <div class="layui-card-header layui-font-16">
-                        tongyi 提出的问题？
-                    </div>
-                    <div class="layui-card-body">
-                        tongyi 回答的答案。
-                    </div>
+                <div id="chat-tongyi-content">
+
                 </div>
-                <div id="chat-xunfei-content" class="layui-card layui-panel" style="display: none;">
-                    <div class="layui-card-header layui-font-16">
-                        xunfei 提出的问题？
-                    </div>
-                    <div class="layui-card-body">
-                        xunfei 回答的答案。
-                    </div>
+                <div id="chat-xunfei-content" style="display: none;">
+
                 </div>
                 <div id="chat-wenxin-content" class="layui-card layui-panel" style="display: none;">
                     <div class="layui-card-header layui-font-16">
@@ -125,12 +115,7 @@
 
                 </div>
                 <div id="draw-tongyi-content" class="layui-card layui-panel" style="display: none;">
-                    <div class="layui-card-header layui-font-16">
-                        绘图-tongyi 提出的问题？
-                    </div>
-                    <div class="layui-card-body">
-                        绘图-tongyi 回答的答案。
-                    </div>
+
                 </div>
                 <div id="draw-xunfei-content" style="display: none;">
 
@@ -191,7 +176,8 @@
         var util = layui.util;
         var jQuery = layui.$;
         var question_type = "chat"; // 默认当前在使用聊天功能
-        var is_first_load_draw = true; // 是否首次加载绘图历史列表
+        var is_first_load_draw_openai = true; // 是否首次加载绘图历史列表
+        var is_first_load_draw_tongyi = true; // 是否首次加载绘图历史列表
 
         // 登录状态判断
         function isLogin() {
@@ -208,6 +194,7 @@
                 jQuery("#question-send").attr("disabled", "disabled");
             }
         }
+
         // 封装问答 HTML 代码
         function createChatHtml(question, answer) {
             return '<div class="layui-card layui-panel">\n' +
@@ -219,6 +206,7 @@
                 '                        </div>\n' +
                 '                    </div>';
         }
+
         // 封装绘图 HTML 代码
         function createDrawHtml(question, answer) {
             return '<div class="layui-card layui-panel">\n' +
@@ -230,48 +218,154 @@
                 '                        </div>\n' +
                 '                    </div>';
         }
+
+        // 封装基础聊天统建和展示方法
+        function baseChatShowList(divId, res) {
+            if (res.code === 200) {
+                var html = "";
+                for (var i = 0; i < res.data.length; i++) {
+                    var answer = res.data[i];
+                    html += createChatHtml(answer.title, answer.content);
+                }
+                jQuery("#" + divId).html(html);
+            }
+        }
+
         // 显示OpenAI历史对话列表
         function showOpenAIChatHistory() {
             // 回调方法
             function doShowList(res) {
-                if (res.code === 200) {
-                    var html = "";
-                    for (var i = 0; i < res.data.length; i++) {
-                        var answer = res.data[i];
-                        html += createChatHtml(answer.title, answer.content);
-                    }
-                    jQuery("#chat-chatgpt-content").html(html);
-                }
+                baseChatShowList("chat-chatgpt-content", res);
             }
 
             authAjax(jQuery, "/openai/getchatlist", {}, doShowList);
         }
 
-        // 显示OpenAI历史绘图列表
+        // 获取通义大模型历史对话信息
+        function showTongyiChatHistory() {
+            // 回调方法
+            function doShowList(res) {
+                baseChatShowList("chat-tongyi-content", res);
+            }
+
+            authAjax(jQuery, "/tongyi/getchatlist", {}, doShowList);
+        }
+
+        // 绘图功能历史信息基础方法封装
+        function baseDrawShowList(divId, res) {
+            if (res.code === 200) {
+                var html = "";
+                for (var i = 0; i < res.data.length; i++) {
+                    var answer = res.data[i];
+                    html += createDrawHtml(answer.title, answer.content);
+                }
+                jQuery("#" + divId).html(html);
+            }
+        }
+
+        // 显示 OpenAI 历史绘图列表
         function showOpenAIDrawHistory() {
-            if (is_first_load_draw) {
+            if (is_first_load_draw_openai) {
                 // 回调方法
                 function doShowList(res) {
-                    if (res.code === 200) {
-                        var html = "";
-                        for (var i = 0; i < res.data.length; i++) {
-                            var answer = res.data[i];
-                            html += createDrawHtml(answer.title, answer.content);
-                        }
-                        jQuery("#draw-chatgpt-content").html(html);
-                    }
+                    baseDrawShowList("draw-chatgpt-content",res);
                 }
                 authAjax(jQuery, "/openai/getdrawlist", {}, doShowList);
-                is_first_load_draw = false;
+                is_first_load_draw_openai = false;
             }
+        }
+
+        // 显示通义大模型历史绘图列表
+        function showTongyiDrawHistory() {
+            if (is_first_load_draw_tongyi) {
+                // 回调方法
+                function doShowList(res) {
+                    baseDrawShowList("draw-tongyi-content",res);
+                }
+                authAjax(jQuery, "/tongyi/getdrawlist", {}, doShowList);
+                is_first_load_draw_tongyi = false;
+            }
+        }
+
+        // 聊天回调基础方法
+        function baseCallback(showDiv, question, res) {
+            // 显示回答
+            if (res.code == 200) {
+                // 正常返回响应信息，显示回答
+                jQuery("#" + showDiv).prepend(
+                    createChatHtml(question, res.data));
+                jQuery("#question-input").val("");
+            } else {
+                layer.msg("出错了：" + res.msg);
+            }
+        }
+
+        // 调用 OpenAI 聊天
+        function doOpenAIChat(question) {
+            function callback(res) {
+                baseCallback("chat-chatgpt-content", question, res);
+            }
+
+            authAjax(jQuery, '/openai/chat', {question: question}, callback);
+        }
+
+        // 调用通义大模型聊天功能
+        function doTongyiChat(question) {
+            function callback(res) {
+                baseCallback("chat-tongyi-content", question, res);
+            }
+
+            authAjax(jQuery, '/tongyi/chat', {question: question}, callback);
+        }
+
+        // 调用讯飞大模型聊天功能
+        function doXunfeiChat(question){
+            function callback(res) {
+                baseCallback("chat-xunfei-content", question, res);
+            }
+
+            authAjax(jQuery, '/xunfei/chat', {question: question}, callback);
+        }
+
+        // 封装绘图公共回调方法
+        function baseDrawCallback(divId, question, res) {
+            // 显示答案
+            if (res.code == 200) {
+                // 正常返回响应信息，显示回答
+                jQuery("#" + divId).prepend(
+                    createDrawHtml(question, res.data));
+                jQuery("#question-input").val("");
+            } else {
+                layer.msg("出错了：" + res.msg);
+            }
+        }
+
+        // 调用 OpenAI 绘图功能
+        function doOpenAIDraw(question) {
+            function callback(res) {
+                baseDrawCallback("draw-chatgpt-content", question, res);
+            }
+
+            authAjax(jQuery, '/openai/draw', {question: question}, callback);
+        }
+
+        // 调用通义大模型绘图功能
+        function doTongyiDraw(question) {
+            function callback(res) {
+                baseDrawCallback("draw-tongyi-content", question, res);
+            }
+
+            authAjax(jQuery, '/tongyi/draw', {question: question}, callback);
         }
 
         // 页面加载完成之后执行的初始化事件
         layer.ready(function () {
             // 登录状态判断
             isLogin();
-            // 显示OpenAI历史对话信息
+            // 显示 OpenAI 历史对话信息
             showOpenAIChatHistory();
+            // 显示同意大模型历史对话信息
+            showTongyiChatHistory();
         });
 
         util.on('lay-on', {
@@ -302,8 +396,10 @@
                 // 显示聊天文本框
                 jQuery("#footer-chat").show();
                 question_type = "draw"; // 默认当前在使用聊天功能
-                // 显示历史绘图信息
+                // 显示 OpenAI 历史绘图信息
                 showOpenAIDrawHistory();
+                // 显示通义大模型历史绘图信息
+                showTongyiDrawHistory();
             },
             'discuss-nav-show': function () { // 显示话题讨论标签页
                 jQuery("#discuss-nav").show();
@@ -330,33 +426,12 @@
                     return;
                 }
                 if (question_type == "chat") {  // 聊天功能
-                    function callback(res) {
-                        // 显示回答
-                        if (res.code == 200) {
-                            // 正常返回响应信息，显示回答
-                            jQuery("#chat-chatgpt-content").prepend(
-                                createChatHtml(question, res.data));
-                            jQuery("#question-input").val("");
-                        } else {
-                            layer.msg("出错了：" + res.msg);
-                        }
-                    }
-
-                    authAjax(jQuery, '/openai/chat', {question: question}, callback);
+                    // doOpenAIChat(question); // 调用 OpenAI 聊天功能
+                    // doTongyiChat(question); // 调用通义大模型聊天功能
+                    doXunfeiChat(question); // 调用讯飞大模型聊天功能
                 } else if (question_type == "draw") { // 绘图功能
-                    function callback() {
-                        // 显示答案
-                        if (res.code == 200) {
-                            // 正常返回响应信息，显示回答
-                            jQuery("#draw-chatgpt-content").prepend(
-                                createDrawHtml(question, res.data));
-                            jQuery("#question-input").val("");
-                        } else {
-                            layer.msg("出错了：" + res.msg);
-                        }
-                    }
-
-                    authAjax(jQuery, '/openai/draw', {question: question}, callback);
+                    // doOpenAIDraw(question); // 调用 OpenAI 绘图功能
+                    doTongyiDraw(question); // 调用通义大模型绘图功能
                 }
             },
             'doLogin': function () { // 弹出登录框
