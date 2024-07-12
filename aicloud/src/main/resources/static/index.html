@@ -169,7 +169,6 @@
 <script src="/js/ajaxutil.js"></script>
 <script src="/js/appvariable.js"></script>
 <script src="/js/marked.min.js"></script>
-
 <script>
     // JS
     layui.use(['element', 'layer', 'util'], function () {
@@ -180,6 +179,7 @@
         var question_type = "chat"; // 默认当前在使用聊天功能
         var is_first_load_draw_openai = true; // 是否首次加载绘图历史列表
         var is_first_load_draw_tongyi = true; // 是否首次加载绘图历史列表
+        var is_first_load_draw_xunfei = true; // 是否首次加载绘图历史列表
 
         // 登录状态判断
         function isLogin() {
@@ -204,7 +204,7 @@
                 question + '                            \n' +
                 '                        </div>\n' +
                 '                        <div class="layui-card-body">\n' +
-                marked.parse(answer)  + '                            \n' +
+                marked.parse(answer) + '                            \n' +
                 '                        </div>\n' +
                 '                    </div>';
         }
@@ -280,8 +280,9 @@
             if (is_first_load_draw_openai) {
                 // 回调方法
                 function doShowList(res) {
-                    baseDrawShowList("draw-chatgpt-content",res);
+                    baseDrawShowList("draw-chatgpt-content", res);
                 }
+
                 authAjax(jQuery, "/openai/getdrawlist", {}, doShowList);
                 is_first_load_draw_openai = false;
             }
@@ -292,10 +293,24 @@
             if (is_first_load_draw_tongyi) {
                 // 回调方法
                 function doShowList(res) {
-                    baseDrawShowList("draw-tongyi-content",res);
+                    baseDrawShowList("draw-tongyi-content", res);
                 }
+
                 authAjax(jQuery, "/tongyi/getdrawlist", {}, doShowList);
                 is_first_load_draw_tongyi = false;
+            }
+        }
+
+        // 绘图历史信息展示
+        function showXunfeiDrawHistory(){
+            if (is_first_load_draw_xunfei) {
+                // 回调方法
+                function doShowList(res) {
+                    baseDrawShowList("draw-xunfei-content", res);
+                }
+
+                authAjax(jQuery, "/xunfei/getdrawlist", {}, doShowList);
+                is_first_load_draw_xunfei = false;
             }
         }
 
@@ -331,7 +346,7 @@
         }
 
         // 调用讯飞大模型聊天功能
-        function doXunfeiChat(question){
+        function doXunfeiChat(question) {
             function callback(res) {
                 baseCallback("chat-xunfei-content", question, res);
             }
@@ -370,6 +385,15 @@
             authAjax(jQuery, '/tongyi/draw', {question: question}, callback);
         }
 
+        // 调用讯飞大模型绘图功能
+        function doXunfeiDraw(question) {
+            function callback(res) {
+                baseDrawCallback("draw-xunfei-content", question, res);
+            }
+
+            authAjax(jQuery, '/xunfei/draw', {question: question}, callback);
+        }
+
         // 页面加载完成之后执行的初始化事件
         layer.ready(function () {
             // 登录状态判断
@@ -380,7 +404,6 @@
             showTongyiChatHistory();
             // 显示讯飞大模型历史对话信息
             showXunfeiChatHistory();
-
         });
 
         util.on('lay-on', {
@@ -415,6 +438,8 @@
                 showOpenAIDrawHistory();
                 // 显示通义大模型历史绘图信息
                 showTongyiDrawHistory();
+                // 显示讯飞大模型历史绘图信息
+                showXunfeiDrawHistory();
             },
             'discuss-nav-show': function () { // 显示话题讨论标签页
                 jQuery("#discuss-nav").show();
@@ -441,12 +466,13 @@
                     return;
                 }
                 if (question_type == "chat") {  // 聊天功能
-                    //doOpenAIChat(question); // 调用 OpenAI 聊天功能
-                    //doTongyiChat(question); // 调用通义大模型聊天功能
+                    // doOpenAIChat(question); // 调用 OpenAI 聊天功能
+                    // doTongyiChat(question); // 调用通义大模型聊天功能
                     doXunfeiChat(question); // 调用讯飞大模型聊天功能
                 } else if (question_type == "draw") { // 绘图功能
                     // doOpenAIDraw(question); // 调用 OpenAI 绘图功能
-                    doTongyiDraw(question); // 调用通义大模型绘图功能
+                    // doTongyiDraw(question); // 调用通义大模型绘图功能
+                    doXunfeiDraw(question); // 调用讯飞大模型绘图功能
                 }
             },
             'doLogin': function () { // 弹出登录框

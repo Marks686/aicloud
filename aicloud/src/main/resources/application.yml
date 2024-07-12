@@ -45,3 +45,8 @@ xunfei:
     appid: a75d6727
     api-key: a85b97313192e0573626c279a39c9c21
     api-secret: ZDE5YzcyZDYyNGE5NzE4OTU3ODJjNGI2
+  draw:
+    host-url: https://spark-api.cn-huabei-1.xf-yun.com/v2.1/tti
+    app-id: a75d6727
+    api-key: a85b97313192e0573626c279a39c9c21
+    api-secret: ZDE5YzcyZDYyNGE5NzE4OTU3ODJjNGI2
